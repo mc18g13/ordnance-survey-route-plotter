@@ -18,7 +18,7 @@ class Map extends Component {
 
         return (
             <ReactBingmaps
-                bingmapKey = "AqTBoR7ee9aqB1014xgKQ-3EXp-kv8r3InQ2OcxxxuU81xMHybJkxfsih687H2KC"
+                bingmapKey = {process.env.REACT_APP_BING_API_KEY}
                 polyline= {{
                     "location": this.props.routeMarkers,
                     "option": {strokeColor: "blue", strokeThickness: 3, strokeDashArray: [2]}

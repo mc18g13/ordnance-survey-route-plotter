@@ -2,6 +2,7 @@ import Map from "./Map"
 import RouteControl from "./RouteControl"
 import {Component} from "react";
 import createGpx from 'gps-to-gpx';
+require('dotenv').config()
 
 class App extends Component {
     constructor(props) {
