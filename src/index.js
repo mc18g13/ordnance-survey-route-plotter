@@ -4,9 +4,19 @@ import './index.css';
 import App from './App';
 import reportWebVitals from './reportWebVitals';
 
+import { ChakraProvider } from "@chakra-ui/react";
+
+function ChakraApp() {
+  return (
+    <ChakraProvider>
+        <App/>
+    </ChakraProvider>
+  )
+}
+
 ReactDOM.render(
   <React.StrictMode>
-    <App />
+    <ChakraApp/>
   </React.StrictMode>,
   document.getElementById('root')
 );
