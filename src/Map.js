@@ -3,9 +3,6 @@ import { ReactBingmaps } from 'react-bingmaps';
 
 
 class Map extends Component {
-    constructor(props) {
-        super(props);
-    }
 
     render(){
         const routeMarkers = this.props.routeMarkers.map(location => { 
