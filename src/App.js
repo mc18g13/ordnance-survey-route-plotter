@@ -11,27 +11,33 @@ class App extends Component {
     }
 
     addRouteMarkerOnClick = (location) => {
+
         if (this.state.routeMarkers.length > 0) {
-            fetch("https://routing.openstreetmap.de/routed-foot/route/v1/driving/"+this.state.routeMarkers.slice(-1)[0][1] +","+this.state.routeMarkers.slice(-1)[0][0] + ";" +location.longitude +","+location.latitude+"?overview=false&steps=true&geometries=geojson")
+            const lastRoutePoint = this.state.routeMarkers.slice(-1).slice(-1)[0][0]
+            const url = "https://routing.openstreetmap.de/routed-foot/route/v1/driving/"+lastRoutePoint[1] +","+lastRoutePoint[0] + ";" +location.longitude +","+location.latitude+"?overview=false&steps=true&geometries=geojson";
+            
+            fetch(url)
             .then(response => {
                 return response.json();
             })
             .then(json => {
-                console.log(json.routes[0])
-                const routePoints = json.routes[0].legs[0].steps.map(step => {
-                    return step.geometry.coordinates.map( coord => {
-                        return [coord[1], coord[0]];
+                if (json.routes) {
+                    const routePoints = json.routes[0].legs[0].steps.map(step => {
+                        return step.geometry.coordinates.map( coord => {
+                            return [coord[1], coord[0]];
+                        })
                     })
-                })
-                this.setState((prevState) => {
-                    return {routeMarkers: [...prevState.routeMarkers, ...routePoints.flat()]}
-                })
+                    this.setState((prevState) => {
+                        return {routeMarkers: [...prevState.routeMarkers, ...routePoints]};
+                    })
+                } else {
+                    console.error("invalid routing request");
+                }
+
             })
         } else {
             const routeMarkerLocation = [location.latitude, location.longitude]
-            this.setState((prevState) => {
-                return {routeMarkers: [...prevState.routeMarkers, routeMarkerLocation]}
-            })
+            this.setState({routeMarkers: [[routeMarkerLocation]]})
         }
     }
 
@@ -42,7 +48,7 @@ class App extends Component {
     }
 
     undoCallback = () => {
-        var array = [...this.state.routeMarkers];
+        var array = this.state.routeMarkers;
         array.pop()
         this.setState({routeMarkers: array});
     }
@@ -62,7 +68,7 @@ class App extends Component {
 
     exportCallback = () => {
         if (this.state.routeMarkers.length > 0) {
-            const route = this.state.routeMarkers.map(location => {
+            const route = this.state.routeMarkers.flat().map(location => {
                 return {
                     latitude: location[0],
                     longitude: location[1]
@@ -77,7 +83,10 @@ class App extends Component {
     render() {
         return (
             <div>
-                <Map clickToAddLocation={this.addRouteMarkerOnClick} routeMarkers={this.state.routeMarkers}/>
+                <Map 
+                    clickToAddLocation={this.addRouteMarkerOnClick}
+                    routeMarkers={this.state.routeMarkers.flat()}
+                    routeSegments={this.state.routeMarkers}/>
                 <RouteControl                         
                     clearCallback={this.clearCallback}
                     undoCallback={this.undoCallback}

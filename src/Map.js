@@ -4,13 +4,13 @@ import { ReactBingmaps } from 'react-bingmaps';
 class Map extends Component {
 
     render(){
-        const routeMarkers = this.props.routeMarkers.map(location => { 
+
+        const segmentStartPoints = this.props.routeSegments.map(segment => {
             return {
-                "location": location,
+                "location": segment.slice(-1)[0],
                 "option":{ color: 'blue' }
             }
         })
-
         return (
             <ReactBingmaps
                 bingmapKey = {process.env.REACT_APP_BING_API_KEY}
@@ -24,7 +24,7 @@ class Map extends Component {
                     {addHandler: "click", callback: this.props.clickToAddLocation}
                 }
                 pushPins = {
-                    routeMarkers
+                    segmentStartPoints
                 } >
             </ReactBingmaps>
         );
