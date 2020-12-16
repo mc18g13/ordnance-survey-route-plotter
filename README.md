@@ -1,3 +1,6 @@
+# Route Plotting On an OS Map
+This is a react app created to plot and export routes on an OS Map to use with garmin and strava 
+
 # Getting Started with Create React App
 
 This project was bootstrapped with [Create React App](https://github.com/facebook/create-react-app).
