@@ -1,13 +1,14 @@
 import {
-    Box,
-    Heading,
     Button,
-    Stack
+    Menu,
+    MenuButton,
+    MenuList,
+    MenuItem,
+    MenuGroup,
+    MenuDivider,
 } from '@chakra-ui/react';
 
-import {React, Component} from "react";
-import { ReactBingmaps } from 'react-bingmaps';
-
+import { Component } from "react";
 
 class RouteControl extends Component {
     constructor(props) {
@@ -20,44 +21,30 @@ class RouteControl extends Component {
     }
 
     render() {
-        let Buttons = () =>  {return <div/>}
-        if (this.state.renderButtons) {
-            Buttons = () => {
-                return (
-                    <div>
-                    <Box textAlign="left">
-                        <Stack variant="outline" spacing="6" margin="1em">
-                            <Button colorScheme="teal" mt={3} onClick={this.props.clearCallback}>
-                                Clear
-                            </Button>
-                            <Button colorScheme="teal" mt={3} onClick={this.props.undoCallback}>
-                                Undo
-                            </Button>
-                            <Button colorScheme="teal" mt={3} onClick={this.props.exportCallback}>
-                                Export
-                            </Button>
-                        </Stack>
-                    </Box>
-                    </div>
-                )
-            }
-        }
-    
+
         return (
-            <Box
-                style={{position: "absolute"}} 
-                p={1} width={200}  
-                background="white" 
-                borderWidth={1} 
-                borderColor="black" 
-                borderRadius={8} 
-                boxShadow="lg"
-                marginTop="3"
-                marginLeft="3">
-                <Button onClick={this.onClick} style={{float:"right"}} >_</Button>
-                <Heading colorScheme="teal" margin="1em" >Edit Route</Heading>
-                <Buttons/>
-            </Box>
+            <div>
+                <Menu isOpen={this.state.renderButtons}>
+                    <MenuButton
+                     marginTop="3"
+                     marginLeft="3"
+                     as={Button}
+                     colorScheme="teal"
+                     onClick={this.onClick}>
+                        Route Options
+                    </MenuButton>
+                    <MenuList>
+                        <MenuGroup title="Edit Route">
+                            <MenuItem onClick={this.props.clearCallback}>Clear</MenuItem>
+                            <MenuItem onClick={this.props.undoCallback}>Undo</MenuItem>
+                        </MenuGroup>
+                        <MenuDivider />
+                        <MenuGroup title="Data">
+                            <MenuItem onClick={this.props.exportCallback}>Export</MenuItem>
+                        </MenuGroup>
+                    </MenuList>
+                </Menu>
+            </div>
         );
     }
 
