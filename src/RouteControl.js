@@ -1,12 +1,16 @@
 import {
+    Stack,
+    Select,
     Button,
     Menu,
     MenuButton,
     MenuList,
     MenuItem,
     MenuGroup,
-    MenuDivider,
+    MenuDivider
 } from '@chakra-ui/react';
+
+import { ChevronDownIcon } from '@chakra-ui/icons'
 
 import { Component } from "react";
 
@@ -30,7 +34,8 @@ class RouteControl extends Component {
                      marginLeft="3"
                      as={Button}
                      colorScheme="teal"
-                     onClick={this.onClick}>
+                     onClick={this.onClick}
+                     rightIcon={<ChevronDownIcon />}>
                         Route Options
                     </MenuButton>
                     <MenuList>
