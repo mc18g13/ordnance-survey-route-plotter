@@ -1,6 +1,4 @@
 import {
-    Stack,
-    Select,
     Button,
     Menu,
     MenuButton,

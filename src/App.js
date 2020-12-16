@@ -11,10 +11,25 @@ class App extends Component {
     }
 
     addRouteMarkerOnClick = (location) => {
-        const routeMarkerLocation = [location.latitude, location.longitude]
-        this.setState((prevState) => {
-            return {routeMarkers: [...prevState.routeMarkers, routeMarkerLocation]}
-        })
+        if (this.state.routeMarkers.length > 0) {
+            fetch("https://routing.openstreetmap.de/routed-foot/route/v1/driving/"+this.state.routeMarkers.slice(-1)[0][1] +","+this.state.routeMarkers.slice(-1)[0][0] + ";" +location.longitude +","+location.latitude+"?overview=false&steps=true")
+            .then(response => {
+                return response.json();
+            })
+            .then(json => {
+                const routePoints = json.routes[0].legs[0].steps.map(step => {
+                    return [step.maneuver.location[1], step.maneuver.location[0]];
+                })
+                this.setState((prevState) => {
+                    return {routeMarkers: [...prevState.routeMarkers, ...routePoints]}
+                })
+            })
+        } else {
+            const routeMarkerLocation = [location.latitude, location.longitude]
+            this.setState((prevState) => {
+                return {routeMarkers: [...prevState.routeMarkers, routeMarkerLocation]}
+            })
+        }
     }
 
     clearCallback = () => {
