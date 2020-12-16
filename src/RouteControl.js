@@ -1,8 +1,5 @@
 import {
-    Box,
-    Heading,
     Button,
-    Stack,
     Menu,
     MenuButton,
     MenuList,
