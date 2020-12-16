@@ -12,16 +12,19 @@ class App extends Component {
 
     addRouteMarkerOnClick = (location) => {
         if (this.state.routeMarkers.length > 0) {
-            fetch("https://routing.openstreetmap.de/routed-foot/route/v1/driving/"+this.state.routeMarkers.slice(-1)[0][1] +","+this.state.routeMarkers.slice(-1)[0][0] + ";" +location.longitude +","+location.latitude+"?overview=false&steps=true")
+            fetch("https://routing.openstreetmap.de/routed-foot/route/v1/driving/"+this.state.routeMarkers.slice(-1)[0][1] +","+this.state.routeMarkers.slice(-1)[0][0] + ";" +location.longitude +","+location.latitude+"?overview=false&steps=true&geometries=geojson")
             .then(response => {
                 return response.json();
             })
             .then(json => {
+                console.log(json.routes[0])
                 const routePoints = json.routes[0].legs[0].steps.map(step => {
-                    return [step.maneuver.location[1], step.maneuver.location[0]];
+                    return step.geometry.coordinates.map( coord => {
+                        return [coord[1], coord[0]];
+                    })
                 })
                 this.setState((prevState) => {
-                    return {routeMarkers: [...prevState.routeMarkers, ...routePoints]}
+                    return {routeMarkers: [...prevState.routeMarkers, ...routePoints.flat()]}
                 })
             })
         } else {
