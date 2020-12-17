@@ -3,6 +3,7 @@ import RouteControl from "./RouteControl"
 import RouteInfo from "./RouteInfo"
 import {Component} from "react";
 import createGpx from 'gps-to-gpx';
+import { haversineDistance } from "./MathFunctions"
 require('dotenv').config()
 
 class App extends Component {
@@ -13,28 +14,6 @@ class App extends Component {
             segmentDistances: [],
             autoRouting: true
         };
-    }
-
-    //This function takes in latitude and longitude of two location and returns the distance between them as the crow flies (in km)
-    haversineDistance(lat1, lon1, lat2, lon2) 
-    {
-        const radiusOfEarthMeters = 6371000;
-        const dLat = this.toRad(lat2-lat1);
-        const dLon = this.toRad(lon2-lon1);
-        const lat1Rad = this.toRad(lat1);
-        const lat2Rad = this.toRad(lat2);
-
-        const a = Math.sin(dLat/2) * Math.sin(dLat/2) +
-        Math.sin(dLon/2) * Math.sin(dLon/2) * Math.cos(lat1Rad) * Math.cos(lat2Rad); 
-        const c = 2 * Math.atan2(Math.sqrt(a), Math.sqrt(1-a)); 
-        const d = radiusOfEarthMeters * c;
-        return d;
-    }
-
-    // Converts numeric degrees to radians
-    toRad(Value) 
-    {
-        return Value * Math.PI / 180;
     }
 
     addRouteMarkerOnClick = (location) => {
@@ -70,7 +49,7 @@ class App extends Component {
                     console.error(err)
                 })
             } else {
-                const distance = this.haversineDistance(lastRoutePoint[0], lastRoutePoint[1], location.latitude, location.longitude);
+                const distance = haversineDistance(lastRoutePoint[0], lastRoutePoint[1], location.latitude, location.longitude);
                 const routeMarkerLocation = [location.latitude, location.longitude];
                 this.setState((prevState) => {
                     return {
