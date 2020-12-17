@@ -13,9 +13,9 @@ class App extends Component {
     addRouteMarkerOnClick = (location) => {
 
         if (this.state.routeMarkers.length > 0) {
-            const lastRoutePoint = this.state.routeMarkers.slice(-1).slice(-1)[0][0]
+            const lastRouteSegment = this.state.routeMarkers[this.state.routeMarkers.length - 1];
+            const lastRoutePoint = lastRouteSegment[lastRouteSegment.length - 1];
             const url = "https://routing.openstreetmap.de/routed-foot/route/v1/driving/"+lastRoutePoint[1] +","+lastRoutePoint[0] + ";" +location.longitude +","+location.latitude+"?overview=false&steps=true&geometries=geojson";
-            
             fetch(url)
             .then(response => {
                 return response.json();
@@ -27,8 +27,9 @@ class App extends Component {
                             return [coord[1], coord[0]];
                         })
                     })
+                    // console.log(...routePoints.flat())
                     this.setState((prevState) => {
-                        return {routeMarkers: [...prevState.routeMarkers, ...routePoints]};
+                        return {routeMarkers: [...prevState.routeMarkers, [...routePoints.flat()]]};
                     })
                 } else {
                     console.error("invalid routing request");
