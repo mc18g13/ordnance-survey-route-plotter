@@ -5,9 +5,10 @@ class Map extends Component {
 
     render(){
 
-        const segmentStartPoints = this.props.routeSegments.map(segment => {
+        const segmentEndPoints = this.props.routeSegments.map(segment => {
+            const endOfSegment = segment.slice(-1)[0]
             return {
-                "location": segment.slice(-1)[0],
+                "location": endOfSegment,
                 "option":{ color: 'blue' }
             }
         })
@@ -24,7 +25,7 @@ class Map extends Component {
                     {addHandler: "click", callback: this.props.clickToAddLocation}
                 }
                 pushPins = {
-                    segmentStartPoints
+                    segmentEndPoints
                 } >
             </ReactBingmaps>
         );
