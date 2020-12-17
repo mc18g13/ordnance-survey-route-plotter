@@ -48,6 +48,7 @@ class RouteControl extends Component {
                                 <Switch id="auto-route" defaultIsChecked colorScheme="teal" onChange={this.props.toggleAutoRouting}/>
                             </FormControl>
                         </MenuGroup>
+                        <MenuDivider />
                         <MenuGroup title="Edit Route">
                             <MenuItem onClick={this.props.clearCallback}>Clear</MenuItem>
                             <MenuItem onClick={this.props.undoCallback}>Undo</MenuItem>
