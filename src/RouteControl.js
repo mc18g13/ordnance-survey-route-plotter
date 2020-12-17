@@ -5,7 +5,10 @@ import {
     MenuList,
     MenuItem,
     MenuGroup,
-    MenuDivider
+    MenuDivider,
+    FormControl,
+    FormLabel,
+    Switch
 } from '@chakra-ui/react';
 
 import { ChevronDownIcon } from '@chakra-ui/icons'
@@ -19,7 +22,7 @@ class RouteControl extends Component {
     }
 
     onClick = () => {
-        this.setState(prevState => { return {renderButtons: !prevState.renderButtons}})
+        this.setState(prevState => ({renderButtons: !prevState.renderButtons}))
     }
 
     render() {
@@ -37,6 +40,14 @@ class RouteControl extends Component {
                         Route Options
                     </MenuButton>
                     <MenuList>
+                        <MenuGroup title="Settings">
+                            <FormControl display="flex" alignItems="center">
+                                <FormLabel marginLeft="3" marginRight="10" htmlFor="auto-route">
+                                    Auto Route
+                                </FormLabel>
+                                <Switch id="auto-route" defaultIsChecked colorScheme="teal" onChange={this.props.toggleAutoRouting}/>
+                            </FormControl>
+                        </MenuGroup>
                         <MenuGroup title="Edit Route">
                             <MenuItem onClick={this.props.clearCallback}>Clear</MenuItem>
                             <MenuItem onClick={this.props.undoCallback}>Undo</MenuItem>
