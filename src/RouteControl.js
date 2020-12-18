@@ -9,6 +9,7 @@ import {
     FormControl,
     FormLabel,
     Switch,
+    Select
 } from '@chakra-ui/react';
 
 import gpxParser from "gpxparser"
@@ -82,6 +83,19 @@ class RouteControl extends Component {
                                 </FormLabel>
                                 <Switch id="auto-route" defaultIsChecked colorScheme="teal" onChange={this.props.toggleAutoRouting}/>
                             </FormControl>
+                            <FormControl colorScheme="teal" display="flex" alignItems="center">
+                                <FormLabel marginLeft="3" marginRight="10" htmlFor="auto-route">
+                                    Type
+                                </FormLabel>
+                                <Select
+                                    placeholder="Select option"
+                                    default={ROUTE_TYPE.walk}
+                                    onChange={this.props.updateRoutingTypeCallback}>
+                                    <option value={ROUTE_TYPE.walk}>Walk</option>
+                                    <option value={ROUTE_TYPE.bike}>Bike</option>
+                                    <option value={ROUTE_TYPE.car}>Car</option>
+                                </Select>
+                            </FormControl>
                         </MenuGroup>
                         <MenuDivider />
                         <MenuGroup title="Edit Route">
@@ -103,6 +117,12 @@ class RouteControl extends Component {
         );
     }
 
+}
+
+export const ROUTE_TYPE = {
+    "walk": 1,
+    "bike": 2,
+    "car": 3,
 }
 
 export default RouteControl;

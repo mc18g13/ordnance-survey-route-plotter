@@ -20,7 +20,7 @@ const Map = (props) => {
             bingmapKey = {process.env.REACT_APP_BING_API_KEY}
             polyline= {{
                 "location": props.routeMarkers,
-                "option": {strokeColor: "blue", strokeThickness: 3, strokeDashArray: [2]}
+                "option": {strokeColor: "blue", strokeThickness: 3, strokeDashArray: [2]},
             }}
             center={props.center}
             mapTypeId = {"ordnanceSurvey"}

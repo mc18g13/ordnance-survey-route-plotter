@@ -1,15 +1,11 @@
 import Map from "./Map"
 import RouteControl from "./RouteControl"
+import ROUTE_TYPE from "./RouteControl"
 import RouteInfo from "./RouteInfo"
 import {Component} from "react";
 import createGpx from 'gps-to-gpx';
 import { haversineDistance } from "./MathFunctions"
 
-const ROUTE_TYPE = {
-    "bike": 1,
-    "car": 2,
-    "walk": 3
-}
 const LONDON_COORD = [51.5074, 0.1278];
 class App extends Component {
     constructor(props) {
@@ -17,7 +13,8 @@ class App extends Component {
         this.state = {
             routeSegments: [],
             segmentDistances: [],
-            autoRouting: true
+            autoRouting: true,
+            routingType: ROUTE_TYPE.walk
         };
     }
 
@@ -25,10 +22,17 @@ class App extends Component {
         const end = `${lastRoutePoint[1]},${lastRoutePoint[0]};${location.longitude},${location.latitude}?overview=false&steps=true&geometries=geojson`;
         if (requestType === ROUTE_TYPE.car) {
             return `https://routing.openstreetmap.de/routed-car/route/v1/driving/${end}`
-        } else {
+        } else if (requestType === ROUTE_TYPE.walk) {
             return `https://routing.openstreetmap.de/routed-foot/route/v1/driving/${end}`
+        } else if (requestType === ROUTE_TYPE.walk) {
+            return `https://routing.openstreetmap.de/routed-bike/route/v1/driving/${end}`
         }
     }
+
+    updateRoutingType = (type) => {
+        this.setState({routingType: type});
+    }
+
 
     makeRoutingRequest = (lastRoutePoint, location) => {
 
@@ -163,7 +167,8 @@ class App extends Component {
                     undoCallback={this.undoCallback}
                     exportCallback={this.exportCallback}
                     toggleAutoRouting={this.toggleAutoRouting}
-                    uploadCallback={this.upload}/>
+                    uploadCallback={this.upload}
+                    updateRoutingTypeCallback={this.updateRoutingType}/>
                 <RouteInfo routeLength={routeLengthKilometers}/>
             </div>
         );
