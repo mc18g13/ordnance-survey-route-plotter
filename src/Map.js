@@ -1,35 +1,44 @@
-import {React, Component} from "react";
+import PropTypes from 'prop-types';
 import { ReactBingmaps } from 'react-bingmaps';
 
-class Map extends Component {
+const getPushPins = (props) => {
+    const segmentEndPoints = props.routeSegments.map(segment => {
+        const endOfSegment = segment.slice(-1)[0]
+        return {
+            "location": endOfSegment,
+            "option":{ color: 'blue' }
+        }
+    })
 
-    render(){
+    return segmentEndPoints;
+}
 
-        const segmentStartPoints = this.props.routeSegments.map(segment => {
-            return {
-                "location": segment.slice(-1)[0],
-                "option":{ color: 'blue' }
+const Map = (props) => {
+    const pushPins = getPushPins(props);
+    return (
+        <ReactBingmaps
+            bingmapKey = {process.env.REACT_APP_BING_API_KEY}
+            polyline= {{
+                "location": props.routeMarkers,
+                "option": {strokeColor: "blue", strokeThickness: 3, strokeDashArray: [2]},
+            }}
+            center={props.center}
+            mapTypeId = {"ordnanceSurvey"}
+            getLocation = {
+                {addHandler: "click", callback: props.clickToAddLocation}
             }
-        })
-        return (
-            <ReactBingmaps
-                bingmapKey = {process.env.REACT_APP_BING_API_KEY}
-                polyline= {{
-                    "location": this.props.routeMarkers,
-                    "option": {strokeColor: "blue", strokeThickness: 3, strokeDashArray: [2]}
-                }}
-                center={[51.5074, 0.1278]}
-                mapTypeId = {"ordnanceSurvey"}
-                getLocation = {
-                    {addHandler: "click", callback: this.props.clickToAddLocation}
-                }
-                pushPins = {
-                    segmentStartPoints
-                } >
-            </ReactBingmaps>
-        );
-    }
+            pushPins = {
+                pushPins
+            } >
+        </ReactBingmaps>
+    );
+    
 
 }
+
+Map.propTypes = {
+    routeSegments: PropTypes.array.isRequired,
+    clickToAddLocation:  PropTypes.any.isRequired
+};
 
 export default Map;

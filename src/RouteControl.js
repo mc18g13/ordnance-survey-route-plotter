@@ -5,8 +5,14 @@ import {
     MenuList,
     MenuItem,
     MenuGroup,
-    MenuDivider
+    MenuDivider,
+    FormControl,
+    FormLabel,
+    Switch,
+    Select
 } from '@chakra-ui/react';
+
+import gpxParser from "gpxparser"
 
 import { ChevronDownIcon } from '@chakra-ui/icons'
 
@@ -19,7 +25,40 @@ class RouteControl extends Component {
     }
 
     onClick = () => {
-        this.setState(prevState => { return {renderButtons: !prevState.renderButtons}})
+        this.setState(prevState => ({renderButtons: !prevState.renderButtons}))
+    }
+
+    getRouteFile = (e) => {
+        if (e.target.files && e.target.files[0]) {
+            var fr = new FileReader();
+            fr.onload = () => {
+                let gpx = new gpxParser();
+                gpx.parse(fr.result)
+                if (gpx.tracks[0] && gpx.tracks[0].points) {
+                    const routeArray = gpx.tracks[0].points.map(point => {
+                        return [point.lat, point.lon];
+                    })
+    
+                    const totalDistance = gpx.tracks[0].distance.total;
+    
+                    this.props.uploadCallback(routeArray, totalDistance);
+                }
+            };
+            fr.readAsText(e.target.files[0]);
+        } else {
+            console.error("File is null");
+        }
+    }
+
+    openRouteFileToLoad = () => {
+        var input = document.createElement("input");
+        input.setAttribute('type', 'file');
+        input.setAttribute("accept", ".gpx")
+        input.style.display = 'none';
+        document.body.appendChild(input);
+        input.click()
+        document.body.removeChild(input);
+        input.addEventListener("change", this.getRouteFile);
     }
 
     render() {
@@ -37,20 +76,53 @@ class RouteControl extends Component {
                         Route Options
                     </MenuButton>
                     <MenuList>
+                        <MenuGroup title="Settings">
+                            <FormControl display="flex" alignItems="center">
+                                <FormLabel marginLeft="3" marginRight="10" htmlFor="auto-route">
+                                    Auto Route
+                                </FormLabel>
+                                <Switch id="auto-route" defaultIsChecked colorScheme="teal" onChange={this.props.toggleAutoRouting}/>
+                            </FormControl>
+                            <FormControl colorScheme="teal" display="flex" alignItems="center">
+                                <FormLabel marginLeft="3" marginRight="10" htmlFor="auto-route">
+                                    Type
+                                </FormLabel>
+                                <Select
+                                    placeholder="Select option"
+                                    default={ROUTE_TYPE.walk}
+                                    onChange={this.props.updateRoutingTypeCallback}>
+                                    <option value={ROUTE_TYPE.walk}>Walk</option>
+                                    <option value={ROUTE_TYPE.bike}>Bike</option>
+                                    <option value={ROUTE_TYPE.car}>Car</option>
+                                </Select>
+                            </FormControl>
+                        </MenuGroup>
+                        <MenuDivider />
                         <MenuGroup title="Edit Route">
                             <MenuItem onClick={this.props.clearCallback}>Clear</MenuItem>
                             <MenuItem onClick={this.props.undoCallback}>Undo</MenuItem>
                         </MenuGroup>
                         <MenuDivider />
                         <MenuGroup title="Data">
-                            <MenuItem onClick={this.props.exportCallback}>Export</MenuItem>
+                            <MenuItem onClick={this.props.exportCallback}>Export GPX</MenuItem>
+                            <MenuItem onClick={this.openRouteFileToLoad}>
+                                Import GPX
+                            </MenuItem>
                         </MenuGroup>
                     </MenuList>
                 </Menu>
+
+  
             </div>
         );
     }
 
+}
+
+export const ROUTE_TYPE = {
+    "walk": 1,
+    "bike": 2,
+    "car": 3,
 }
 
 export default RouteControl;
