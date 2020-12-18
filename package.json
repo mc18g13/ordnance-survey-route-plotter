@@ -15,6 +15,7 @@
     "emotion-theming": "^11.0.0",
     "framer-motion": "^2.9.5",
     "gps-to-gpx": "^1.5.1",
+    "gpxparser": "^3.0.6",
     "react": "^17.0.1",
     "react-bingmaps": "^3.6.1",
     "react-dom": "^17.0.1",
