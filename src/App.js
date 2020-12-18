@@ -4,8 +4,13 @@ import RouteInfo from "./RouteInfo"
 import {Component} from "react";
 import createGpx from 'gps-to-gpx';
 import { haversineDistance } from "./MathFunctions"
-require('dotenv').config()
 
+const ROUTE_TYPE = {
+    "bike": 1,
+    "car": 2,
+    "walk": 3
+}
+const LONDON_COORD = [51.5074, 0.1278];
 class App extends Component {
     constructor(props) {
         super(props);
@@ -16,38 +21,52 @@ class App extends Component {
         };
     }
 
+    getRequestUrl = (lastRoutePoint, location, requestType) => {
+        const end = `${lastRoutePoint[1]},${lastRoutePoint[0]};${location.longitude},${location.latitude}?overview=false&steps=true&geometries=geojson`;
+        if (requestType === ROUTE_TYPE.car) {
+            return `https://routing.openstreetmap.de/routed-car/route/v1/driving/${end}`
+        } else {
+            return `https://routing.openstreetmap.de/routed-foot/route/v1/driving/${end}`
+        }
+    }
+
+    makeRoutingRequest = (lastRoutePoint, location) => {
+
+        const url = this.getRequestUrl(lastRoutePoint, location, ROUTE_TYPE.walk);
+        fetch(url)
+        .then(response => {
+            return response.json();
+        })
+        .then(json => {
+            if (json.routes) {
+                const distance = json.routes[0].legs[0].distance;
+                const routePoints = json.routes[0].legs[0].steps.map(step => {
+                    return step.geometry.coordinates.map( coord => {
+                        return [coord[1], coord[0]];
+                    })
+                })
+                this.setState((prevState) => {
+                    return {
+                        routeSegments: [...prevState.routeSegments, [...routePoints.flat()]],
+                        segmentDistances: [...prevState.segmentDistances, distance]
+                    };
+                })
+            } else {
+                throw Error("invalid routing request");
+            }
+        })
+        .catch(err => {
+            console.error(err)
+        })
+    }
+
     addRouteMarkerOnClick = (location) => {
 
         if (this.state.routeSegments.length > 0) {
             const lastRouteSegment = this.state.routeSegments[this.state.routeSegments.length - 1];
             const lastRoutePoint = lastRouteSegment[lastRouteSegment.length - 1];
             if (this.state.autoRouting) {
-                const url = "https://routing.openstreetmap.de/routed-foot/route/v1/driving/"+lastRoutePoint[1] +","+lastRoutePoint[0] + ";" +location.longitude +","+location.latitude+"?overview=false&steps=true&geometries=geojson";
-                fetch(url)
-                .then(response => {
-                    return response.json();
-                })
-                .then(json => {
-                    if (json.routes) {
-                        const distance = json.routes[0].legs[0].distance;
-                        const routePoints = json.routes[0].legs[0].steps.map(step => {
-                            return step.geometry.coordinates.map( coord => {
-                                return [coord[1], coord[0]];
-                            })
-                        })
-                        this.setState((prevState) => {
-                            return {
-                                routeSegments: [...prevState.routeSegments, [...routePoints.flat()]],
-                                segmentDistances: [...prevState.segmentDistances, distance]
-                            };
-                        })
-                    } else {
-                        throw Error("invalid routing request");
-                    }
-                })
-                .catch(err => {
-                    console.error(err)
-                })
+                this.makeRoutingRequest(lastRoutePoint, location);
             } else {
                 const distance = haversineDistance(lastRoutePoint[0], lastRoutePoint[1], location.latitude, location.longitude);
                 const routeMarkerLocation = [location.latitude, location.longitude];
@@ -79,13 +98,22 @@ class App extends Component {
         }));
     }
 
+    upload = (routeArray, distance) => {
+        const startPoint = routeArray.shift();
+        this.setState({
+            routeSegments: [[startPoint], [...routeArray]],
+            segmentDistances: [distance]
+        });
+
+    }
+
     download(filename, text) {
         var element = document.createElement('a');
         element.setAttribute('href', 'data:text/plain;charset=utf-8,' + encodeURIComponent(text));
         element.setAttribute('download', filename);
       
         element.style.display = 'none';
-        document.body.appendChild(element);
+        document.body.appendChild(element)
       
         element.click();
       
@@ -128,12 +156,14 @@ class App extends Component {
                 <Map 
                     clickToAddLocation={this.addRouteMarkerOnClick}
                     routeMarkers={this.state.routeSegments.flat()}
-                    routeSegments={this.state.routeSegments}/>
+                    routeSegments={this.state.routeSegments}
+                    center={LONDON_COORD}/>
                 <RouteControl                         
                     clearCallback={this.clearCallback}
                     undoCallback={this.undoCallback}
                     exportCallback={this.exportCallback}
-                    toggleAutoRouting={this.toggleAutoRouting}/>
+                    toggleAutoRouting={this.toggleAutoRouting}
+                    uploadCallback={this.upload}/>
                 <RouteInfo routeLength={routeLengthKilometers}/>
             </div>
         );

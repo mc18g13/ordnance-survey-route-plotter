@@ -8,8 +8,10 @@ import {
     MenuDivider,
     FormControl,
     FormLabel,
-    Switch
+    Switch,
 } from '@chakra-ui/react';
+
+import gpxParser from "gpxparser"
 
 import { ChevronDownIcon } from '@chakra-ui/icons'
 
@@ -23,6 +25,39 @@ class RouteControl extends Component {
 
     onClick = () => {
         this.setState(prevState => ({renderButtons: !prevState.renderButtons}))
+    }
+
+    getRouteFile = (e) => {
+        if (e.target.files && e.target.files[0]) {
+            var fr = new FileReader();
+            fr.onload = () => {
+                let gpx = new gpxParser();
+                gpx.parse(fr.result)
+                if (gpx.tracks[0] && gpx.tracks[0].points) {
+                    const routeArray = gpx.tracks[0].points.map(point => {
+                        return [point.lat, point.lon];
+                    })
+    
+                    const totalDistance = gpx.tracks[0].distance.total;
+    
+                    this.props.uploadCallback(routeArray, totalDistance);
+                }
+            };
+            fr.readAsText(e.target.files[0]);
+        } else {
+            console.error("File is null");
+        }
+    }
+
+    openRouteFileToLoad = () => {
+        var input = document.createElement("input");
+        input.setAttribute('type', 'file');
+        input.setAttribute("accept", ".gpx")
+        input.style.display = 'none';
+        document.body.appendChild(input);
+        input.click()
+        document.body.removeChild(input);
+        input.addEventListener("change", this.getRouteFile);
     }
 
     render() {
@@ -55,10 +90,15 @@ class RouteControl extends Component {
                         </MenuGroup>
                         <MenuDivider />
                         <MenuGroup title="Data">
-                            <MenuItem onClick={this.props.exportCallback}>Export</MenuItem>
+                            <MenuItem onClick={this.props.exportCallback}>Export GPX</MenuItem>
+                            <MenuItem onClick={this.openRouteFileToLoad}>
+                                Import GPX
+                            </MenuItem>
                         </MenuGroup>
                     </MenuList>
                 </Menu>
+
+  
             </div>
         );
     }
