@@ -12,6 +12,8 @@ import {
     Select
 } from '@chakra-ui/react';
 
+import { ROUTE_TYPE } from "./RouteTypes"
+
 import gpxParser from "gpxparser"
 
 import { ChevronDownIcon } from '@chakra-ui/icons'
@@ -90,7 +92,7 @@ class RouteControl extends Component {
                                 <Select
                                     placeholder="Select option"
                                     default={ROUTE_TYPE.walk}
-                                    onChange={this.props.updateRoutingTypeCallback}>
+                                    onChange={(e) => { this.props.updateRoutingTypeCallback(parseInt(e.target.value)) }}>
                                     <option value={ROUTE_TYPE.walk}>Walk</option>
                                     <option value={ROUTE_TYPE.bike}>Bike</option>
                                     <option value={ROUTE_TYPE.car}>Car</option>
@@ -117,12 +119,6 @@ class RouteControl extends Component {
         );
     }
 
-}
-
-export const ROUTE_TYPE = {
-    "walk": 1,
-    "bike": 2,
-    "car": 3,
 }
 
 export default RouteControl;
