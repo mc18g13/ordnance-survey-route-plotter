@@ -1,6 +1,6 @@
 import Map from "./Map"
 import RouteControl from "./RouteControl"
-import ROUTE_TYPE from "./RouteControl"
+import { ROUTE_TYPE } from "./RouteTypes"
 import RouteInfo from "./RouteInfo"
 import {Component} from "react";
 import createGpx from 'gps-to-gpx';
@@ -24,8 +24,10 @@ class App extends Component {
             return `https://routing.openstreetmap.de/routed-car/route/v1/driving/${end}`
         } else if (requestType === ROUTE_TYPE.walk) {
             return `https://routing.openstreetmap.de/routed-foot/route/v1/driving/${end}`
-        } else if (requestType === ROUTE_TYPE.walk) {
+        } else if (requestType === ROUTE_TYPE.bike) {
             return `https://routing.openstreetmap.de/routed-bike/route/v1/driving/${end}`
+        } else {
+            console.error("Invalid routing type")
         }
     }
 
@@ -36,32 +38,35 @@ class App extends Component {
 
     makeRoutingRequest = (lastRoutePoint, location) => {
 
-        const url = this.getRequestUrl(lastRoutePoint, location, ROUTE_TYPE.walk);
-        fetch(url)
-        .then(response => {
-            return response.json();
-        })
-        .then(json => {
-            if (json.routes) {
-                const distance = json.routes[0].legs[0].distance;
-                const routePoints = json.routes[0].legs[0].steps.map(step => {
-                    return step.geometry.coordinates.map( coord => {
-                        return [coord[1], coord[0]];
+        const url = this.getRequestUrl(lastRoutePoint, location, this.state.routingType);
+        if (url) {
+            fetch(url)
+            .then(response => {
+                return response.json();
+            })
+            .then(json => {
+                if (json.routes) {
+                    const distance = json.routes[0].legs[0].distance;
+                    const routePoints = json.routes[0].legs[0].steps.map(step => {
+                        return step.geometry.coordinates.map( coord => {
+                            return [coord[1], coord[0]];
+                        })
                     })
-                })
-                this.setState((prevState) => {
-                    return {
-                        routeSegments: [...prevState.routeSegments, [...routePoints.flat()]],
-                        segmentDistances: [...prevState.segmentDistances, distance]
-                    };
-                })
-            } else {
-                throw Error("invalid routing request");
-            }
-        })
-        .catch(err => {
-            console.error(err)
-        })
+                    this.setState((prevState) => {
+                        return {
+                            routeSegments: [...prevState.routeSegments, [...routePoints.flat()]],
+                            segmentDistances: [...prevState.segmentDistances, distance]
+                        };
+                    })
+                } else {
+                    throw Error("invalid routing request");
+                }
+            })
+            .catch(err => {
+                console.error(err)
+            })
+        }
+
     }
 
     addRouteMarkerOnClick = (location) => {
