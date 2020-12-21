@@ -1,5 +1,5 @@
 # Route Plotting On an OS Map
-This is a react app created to plot and export routes on an OS Map to use with garmin and strava 
+This is a react app created to plot and export routes on an OS Map to use with garmin and strava  
 Currently deployed here
 [UK Map Plot](https://uk-map-plot.herokuapp.com/)
 
